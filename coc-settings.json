@@ -1,0 +1,31 @@
+{
+  "coc.preferences.useQuickfixForLocations": true,
+  "suggest.snippetIndicator": "->",
+  "clojure-lsp.trace.server": "verbose",
+  "diagnostic.showUnused": true,
+  "diagnostic.showDeprecated": true,
+  "codeLens.enable": true,
+  "inlayHint.enable": false,
+  "python.analysis.inlayHints.variableTypes": false,
+  "python.analysis.inlayHints.functionReturnTypes": false,
+  "python.analysis.inlayHints.callArgumentNames": false,
+  "python.analysis.inlayHints.parameterNames": false,
+  "python.analysis.inlayHints.pytestParameters": false,
+  "python.analysis.inlayHints.*": false,
+  "languageserver": {
+    "clojure-lsp": {
+      "command": "clojure-lsp",
+      "filetypes": ["clojure"],
+      "rootPatterns": ["project.clj", "deps.edn"],
+      "additionalSchemes": ["jar", "zipfile"],
+      "trace.server": "verbose",
+      "diagnostic.showUnused": true,
+      "diagnostic.showDeprecated": true,
+      "diagnostic.highlightPriority": 1000000,
+      "initializationOptions": {
+        "ignore-classpath-directories": true
+      }
+    }
+  },
+  "clangd.path": "~/.config/coc/extensions/coc-clangd-data/install/22.1.6/clangd_22.1.6/bin/clangd"
+}
