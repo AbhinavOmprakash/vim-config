@@ -85,6 +85,7 @@ Plug 'mfussenegger/nvim-dap'          " debugging
 Plug 'nvim-neotest/nvim-nio'          " dap-ui dependency
 Plug 'rcarriga/nvim-dap-ui'
 Plug 'theHamsta/nvim-dap-virtual-text'
+Plug 'lukas-reineke/indent-blankline.nvim' " dotted indent/scope guides
 call plug#end()
 
 
@@ -160,6 +161,10 @@ let g:conjure#client#sql#stdio#command="psql postgresql://postgres:postgres@loca
 command! Vimrc :vs $MYVIMRC
 command! Hs :split
 set lazyredraw
+" folds: start every file fully open, fold with za / zR / zM
+set foldlevelstart=99
+set foldlevel=99
+set nofoldenable
 set smartcase
 set ignorecase
 set undofile
@@ -285,6 +290,16 @@ let g:neoformat_c_clangformat = g:neoformat_cpp_clangformat
 
 autocmd FileType c,cpp nnoremap <buffer> <localleader>fo :Neoformat clangformat<CR>
 
+" folding: treesitter knows functions/classes/namespaces, so folds land on real
+" scopes instead of indentation guesses. foldenable is on per-buffer only here.
+autocmd FileType c,cpp setlocal
+      \ foldmethod=expr
+      \ foldexpr=v:lua.vim.treesitter.foldexpr()
+      \ foldenable
+      \ foldlevel=99
+      \ foldnestmax=10
+      \ foldcolumn=1
+
 " jump between header and source (clangd knows the pairing)
 autocmd FileType c,cpp nnoremap <buffer> <silent> <localleader>gh
       \ :CocCommand clangd.switchSourceHeader<CR>
@@ -398,6 +413,52 @@ pcall(function()
   map('n', '<localleader>dx', dap.terminate,         { desc = 'dap terminate' })
   map('n', '<localleader>du', dapui.toggle,          { desc = 'dap ui' })
 end)
+EOF
+
+" ============================================================================
+" indent guides (dotted vertical lines, brighter line for the current scope)
+" ============================================================================
+lua << EOF
+pcall(function()
+  require('ibl').setup({
+    indent = {
+      char = '\u{250a}',          -- dotted vertical line
+      tab_char = '\u{250a}',
+    },
+    whitespace = { remove_blankline_trail = true },
+    scope = {
+      enabled = true,
+      char = '\u{2506}',          -- dashed line for the scope the cursor is in
+      show_start = false,          -- no underline on the opening line
+      show_end = false,
+      include = {
+        node_type = {
+          -- treesitter nodes that count as a scope in c/c++
+          cpp = { 'function_definition', 'class_specifier', 'struct_specifier',
+                  'namespace_definition', 'for_statement', 'while_statement',
+                  'if_statement', 'switch_statement', 'compound_statement',
+                  'lambda_expression' },
+          c   = { 'function_definition', 'struct_specifier', 'for_statement',
+                  'while_statement', 'if_statement', 'switch_statement',
+                  'compound_statement' },
+        },
+      },
+    },
+    exclude = {
+      filetypes = { 'help', 'nerdtree', 'NvimTree', 'lazygit', 'dashboard',
+                    'dapui_scopes', 'dapui_breakpoints', 'dapui_stacks',
+                    'dapui_watches', 'dap-repl', 'org', 'fzf', 'TelescopePrompt' },
+      buftypes = { 'terminal', 'nofile', 'quickfix', 'prompt' },
+    },
+  })
+end)
+
+-- gruvbox-matching colors: faint dots, slightly brighter for the active scope
+vim.cmd([[
+  highlight IblIndent guifg=#3c3836 gui=nocombine
+  highlight IblWhitespace guifg=#3c3836 gui=nocombine
+  highlight IblScope guifg=#7c6f64 gui=nocombine
+]])
 EOF
 
 filetype plugin indent on
