@@ -13,10 +13,90 @@ lua/plugins/*.lua        one file per area, auto-imported by lazy.nvim
 
 ## Requirements outside nvim
 
-Installed with Homebrew: `neovim fzf tree-sitter-cli clang-format cmake ninja cljfmt cljstyle pg_format black elm-format zig`.
-Xcode command line tools (for `clang`, `lldb-dap` and the macOS SDK headers).
+The config needs nvim 0.12 and these tools on `PATH`:
 
-Mason installs these on first start (`:Mason` to inspect): `clangd clojure-lsp json-lsp neocmakelsp pyright lua-language-server gopls codelldb`.
+| tool | used by |
+|------|---------|
+| `fzf`, `rg` (ripgrep) | fzf-lua: files, live grep, symbols |
+| `git`, `lazygit` | gitsigns, `;gg` |
+| `cc` / `c++`, `cmake`, `ninja` | cmake-tools build of C/C++ projects |
+| `clang-format`, `cljfmt`, `cljstyle`, `pg_format`, `black`, `elm-format`, `zig` | conform (`;fo`) |
+| `tree-sitter` CLI | nvim-treesitter, when a parser has to be compiled |
+
+Mason installs the rest on first start (`:Mason` to inspect):
+`clangd clojure-lsp json-lsp neocmakelsp pyright lua-language-server gopls codelldb`.
+
+### macOS
+
+```sh
+brew install neovim fzf ripgrep lazygit tree-sitter-cli clang-format cmake ninja \
+  cljfmt cljstyle pg_format black elm-format zig
+xcode-select --install   # clang, lldb-dap, macOS SDK headers
+```
+
+### Fedora
+
+```sh
+sudo dnf install neovim fzf ripgrep lazygit git \
+  gcc-c++ clang clang-tools-extra lldb cmake ninja-build \
+  python3-black pgformatter zig xclip
+```
+
+`clang-tools-extra` gives `clang-format`; `clangd` also comes from mason, so the
+system one is optional. Use `wl-clipboard` in place of `xclip` on Wayland.
+
+Not in the Fedora repos:
+
+```sh
+npm install -g tree-sitter-cli elm-format      # or: cargo install tree-sitter-cli
+```
+
+`cljfmt` and `cljstyle` ship as release binaries — drop them in `~/.local/bin`:
+
+```sh
+# https://github.com/weavejester/cljfmt/releases
+# https://github.com/greglook/cljstyle/releases
+```
+
+### Ubuntu / Debian
+
+```sh
+sudo apt install fzf ripgrep git \
+  build-essential clang clang-format clangd lldb cmake ninja-build \
+  black pgformatter xclip
+```
+
+Use `wl-clipboard` in place of `xclip` on Wayland.
+
+`apt` ships an old neovim (0.9 on 24.04), so install 0.12 from upstream:
+
+```sh
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
+```
+
+Not in the apt repos — `lazygit` and `zig` as release tarballs, the rest via npm:
+
+```sh
+npm install -g tree-sitter-cli elm-format
+# https://github.com/jesseduffield/lazygit/releases
+# https://ziglang.org/download/
+# cljfmt + cljstyle: see the Fedora section above
+```
+
+### Linux notes
+
+- The SDK env vars in `lua/config/options.lua` are macOS only (`has('macunix')`);
+  on Linux clangd reads `compile_commands.json` and the system headers directly.
+- Debugging uses `codelldb` from mason, which works the same on Linux. The
+  `lldb-dap` fallback needs that binary on `PATH` (the `lldb` package; on LLVM
+  older than 18 it is called `lldb-vscode`). The `xcrun` lookup after it is a
+  no-op off macOS.
+- `;dd` and `;dw` open Dash.app and do nothing on Linux. Zeal uses a different
+  URL scheme, so point `dash()` in `lua/config/keymaps.lua` at it to reuse them.
+- `clipboard = unnamedplus` needs `xclip`/`xsel` on X11 or `wl-clipboard` on
+  Wayland; without one, yanks stay inside nvim.
 
 ## Keymaps
 
