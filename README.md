@@ -100,7 +100,7 @@ npm install -g tree-sitter-cli elm-format
 
 ## Keymaps
 
-Local leader is `;`. Press `;` and wait to see all groups (which-key).
+Local leader is `;`. .
 
 ### LSP (any language)
 

@@ -36,24 +36,6 @@ return {
     end,
   },
 
-  {
-    'folke/which-key.nvim',
-    event = 'VeryLazy',
-    opts = {
-      preset = 'helix',
-      spec = {
-        { '<localleader>a', group = 'arrow' },
-        { '<localleader>c', group = 'cmake' },
-        { '<localleader>d', group = 'debug / dash' },
-        { '<localleader>f', group = 'find / format' },
-        { '<localleader>g', group = 'goto / git' },
-        { '<localleader>h', group = 'hunks' },
-        { '<localleader>q', group = 'quickfix' },
-        { '<localleader>z', group = 'zig' },
-      },
-    },
-  },
-
   -- dotted indent guides, brighter dashed line for the current scope
   {
     'lukas-reineke/indent-blankline.nvim',
